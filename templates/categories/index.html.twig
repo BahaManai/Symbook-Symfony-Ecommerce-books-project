@@ -1,0 +1,15 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello CategoriesController!{% endblock %}
+
+{% block body %}
+<h1>Liste des Catégories</h1>
+    <div class="d-flex justify-content-end">
+    <a href="{{ path('admin_categories_create') }}" class="btn btn-primary">Ajouter une catégorie</a>
+    </div>
+    <ul>
+        {% for cat in Categories %}
+            <li>{{ cat.libelle }}</li>
+        {% endfor %}
+    </ul>
+{% endblock %}
