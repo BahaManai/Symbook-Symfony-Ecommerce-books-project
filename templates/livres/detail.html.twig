@@ -12,6 +12,7 @@
             <div class="col-md-8">
                 <div class="card-body">
                     <h1 class="card-title">{{ livre.titre }}</h1>
+                    <p class="card-text"><strong>Auteur:</strong> {{ livre.auteur | default('Non renseigné') }}</p>
                     <p class="card-text"><strong>Éditeur:</strong> {{ livre.editeur | default('Non renseigné') }}</p>
                     <p class="card-text"><strong>Date d'édition:</strong> {{ livre.dateEdition ? livre.dateEdition|date('Y-m-d') : 'Non renseigné' }}</p>
                     <p class="card-text"><strong>Prix:</strong> {{ livre.prix }} €</p>

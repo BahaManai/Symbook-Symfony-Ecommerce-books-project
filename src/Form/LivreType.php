@@ -21,6 +21,7 @@ class LivreType extends AbstractType
             ->add('image')
             ->add('resume')
             ->add('editeur')
+            ->add('auteur')
             ->add('dateedition', null, [
                 'widget' => 'single_text',
             ])

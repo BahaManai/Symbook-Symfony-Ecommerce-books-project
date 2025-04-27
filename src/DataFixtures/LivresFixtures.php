@@ -28,6 +28,7 @@ class LivresFixtures extends Fixture
                     ->setIsbn($faker->isbn13())
                     ->setResume($faker->text)
                     ->setEditeur($faker->company)
+                    ->setAuteur($faker->name)
                     ->setDateedition($faker->dateTimeBetween("-30 years", "now"))
                     ->setImage("https://picsum.photos/500/?id=" . $i)
                     ->setPrix($faker->randomFloat(nbMaxDecimals: 2, min: 10, max: 700))
