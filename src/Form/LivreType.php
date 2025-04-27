@@ -31,7 +31,6 @@ class LivreType extends AbstractType
                 'class' => Categories::class,
                 'choice_label' => 'libelle',
             ])
-            ->add('Enregistrer', SubmitType::class)
         ;
     }
 

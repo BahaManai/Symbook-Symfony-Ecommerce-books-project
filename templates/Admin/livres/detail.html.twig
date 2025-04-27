@@ -1,26 +1,43 @@
 {% extends 'Admin/base.html.twig' %}
 
-{% block title %}Espace Admin | {{ livre.titre }}{% endblock %}
+{% block title %}Détail du Livre : {{ livre.titre }}{% endblock %}
 
 {% block body %}
-<div class="container mt-5">
-    <div class="card shadow-sm">
-        <div class="row g-0">
-            <div class="col-md-4 text-center p-3">
-                <img src="{{ livre.image | default('placeholder.jpg') }}" alt="{{ livre.titre }}" class="img-fluid rounded" style="max-height: 300px;">
-            </div>
-            <div class="col-md-8">
-                <div class="card-body">
-                    <h1 class="card-title">{{ livre.titre }}</h1>
-                    <p class="card-text"><strong>Auteur:</strong> {{ livre.auteur | default('Non renseigné') }}</p>
-                    <p class="card-text"><strong>Éditeur:</strong> {{ livre.editeur | default('Non renseigné') }}</p>
-                    <p class="card-text"><strong>Date d'édition:</strong> {{ livre.dateEdition ? livre.dateEdition|date('Y-m-d') : 'Non renseigné' }}</p>
-                    <p class="card-text"><strong>Prix:</strong> {{ livre.prix }} €</p>
-                    <p class="card-text"><strong>ISBN:</strong> {{ livre.isbn | default('Non renseigné') }}</p>
-                    <p class="card-text"><strong>Résumé:</strong> {{ livre.resume | default('Aucun résumé disponible') }}</p>
+    <div class="container mt-5">
+        <div class="card shadow p-4">
+            <div class="row g-4">
+                <div class="col-md-4 text-center">
+                    <img src="{{ livre.image|default('placeholder.jpg') }}" alt="{{ livre.titre }}" class="img-fluid rounded" style="max-height: 300px; object-fit: cover;">
+                </div>
+                <div class="col-md-8">
+                    <h2 class="text-primary">{{ livre.titre }}</h2>
+                    <p><strong>Auteur :</strong> {{ livre.auteur|default('Non renseigné') }}</p>
+                    <p><strong>Éditeur :</strong> {{ livre.editeur|default('Non renseigné') }}</p>
+                    <p><strong>Date d'édition :</strong> {{ livre.dateEdition ? livre.dateEdition|date('d M Y') : 'Non renseigné' }}</p>
+                    <p><strong>ISBN :</strong> {{ livre.isbn|default('Non renseigné') }}</p>
+                    <p><strong>Prix :</strong> {{ livre.prix }} DT</p>
+                    <p><strong>Stock disponible :</strong>
+                        <span class="badge bg-{{ livre.stock > 5 ? 'success' : 'danger' }}">
+                        {{ livre.stock }} en stock
+                    </span>
+                    </p>
+                    <p><strong>Catégorie :</strong>
+                        <span class="badge bg-primary">{{ livre.categorie.libelle }}</span>
+                    </p>
+                    <hr>
+                    <h5 class="mt-4">Résumé</h5>
+                    <p>{{ livre.resume|default('Pas de résumé disponible') }}</p>
                 </div>
             </div>
         </div>
+
+        <div class="mt-4 d-flex justify-content-end">
+            <a href="{{ path('app_livres_update', {'id': livre.id}) }}" class="btn btn-success me-2">
+                <i class="bi bi-pencil"></i> Modifier
+            </a>
+            <a href="{{ path('app_livres') }}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Retour
+            </a>
+        </div>
     </div>
-</div>
 {% endblock %}
