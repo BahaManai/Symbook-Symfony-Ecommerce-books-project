@@ -32,6 +32,7 @@ class LivresFixtures extends Fixture
                     ->setDateedition($faker->dateTimeBetween("-30 years", "now"))
                     ->setImage("https://picsum.photos/500/?id=" . $i)
                     ->setPrix($faker->randomFloat(nbMaxDecimals: 2, min: 10, max: 700))
+                    ->setStock(random_int(10, 100))
                     ->setCategorie($cat);
                 $manager->persist($livre);
             }

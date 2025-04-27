@@ -26,6 +26,7 @@ class LivreType extends AbstractType
                 'widget' => 'single_text',
             ])
             ->add('prix')
+            ->add('stock')
             ->add('categorie', EntityType::class, [
                 'class' => Categories::class,
                 'choice_label' => 'libelle',
