@@ -57,6 +57,7 @@ final class LivresController extends AbstractController
         }
         return $this->render('admin/livres/create.html.twig', [
             'f' => $form,
+            'mode' => 'create'
         ]);
     }
     #[Route('/admin/livres/show', name: 'app_livres_showAll')]
@@ -103,16 +104,27 @@ final class LivresController extends AbstractController
     {
         $em->remove($livre);
         $em->flush();
-        dd($livre);
-        return new Response("Livre $id supprimé avec succès");
+        $this->addFlash('danger', 'Livre supprimé avec succés');
+        return $this->redirectToRoute('app_livres');
     }
     #[Route('/admin/livres/update/{id}', name: 'app_livres_update')]
-    public function update(Livres $livre, EntityManagerInterface $em): Response
+    public function update(Request $request, Livres $livre, EntityManagerInterface $em): Response
     {
-        $nvPrix=$livre->getPrix()*1.1;
-        $livre->setPrix($nvPrix);
-        $em->flush();
-        dd($livre);
-        return new Response("Livre $id mis à jour avec succès");
+        // The $livre is automatically loaded by Symfony (ParamConverter)
+        // Create the form linked to the existing book
+        $form = $this->createForm(LivreType::class, $livre);
+        // Handle the form request
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+            // No need to persist again because $livre is already managed by Doctrine
+            $em->flush();
+            $this->addFlash('success', 'Le livre a été modifié avec succès.');
+            return $this->redirectToRoute('app_livres');
+        }
+        return $this->render('admin/livres/create.html.twig', [
+            'f' => $form,
+            'mode' => 'edit'
+        ]);
     }
+
 }

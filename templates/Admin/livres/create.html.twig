@@ -1,18 +1,21 @@
 {% extends 'Admin/base.html.twig' %}
 
-{% block title %}Ajouter un nouveau Livre{% endblock %}
+{% block title %}{{ mode == 'edit' ? 'Modifier un Livre' : 'Ajouter un nouveau Livre' }}{% endblock %}
 
 {% block body %}
-    <div class="container mt-5">
+    <div class="container">
         <div class="card shadow p-4">
-            <h2 class="text-primary mb-4"><i class="bi bi-plus-circle me-2"></i>Ajouter un nouveau Livre</h2>
+            <h2 class="text-primary mb-4">
+                <i class="bi {{ mode == 'edit' ? 'bi-pencil-square' : 'bi-plus-circle' }} me-2"></i>
+                {{ mode == 'edit' ? 'Modifier un Livre' : 'Ajouter un nouveau Livre' }}
+            </h2>
 
             {{ form_start(f, {'attr': {'class': 'row g-3'}}) }}
             <div class="col-md-6">
                 {{ form_row(f.titre) }}
             </div>
             <div class="col-md-6">
-                {{ form_row(f.isbn) }}
+                {{ form_row(f.isbn, {'label': 'ISBN'}) }}
             </div>
             <div class="col-md-6">
                 {{ form_row(f.slug) }}
@@ -21,7 +24,7 @@
                 {{ form_row(f.image) }}
             </div>
             <div class="col-md-12">
-                {{ form_row(f.resume) }}
+                {{ form_row(f.resume, {'label': 'Résumé'}) }}
             </div>
             <div class="col-md-6">
                 {{ form_row(f.editeur) }}
@@ -30,7 +33,7 @@
                 {{ form_row(f.auteur) }}
             </div>
             <div class="col-md-6">
-                {{ form_row(f.dateedition) }}
+                {{ form_row(f.dateedition, {'label': 'Date d\'édition'}) }}
             </div>
             <div class="col-md-3">
                 {{ form_row(f.prix) }}
@@ -39,7 +42,7 @@
                 {{ form_row(f.stock) }}
             </div>
             <div class="col-md-6">
-                {{ form_row(f.categorie) }}
+                {{ form_row(f.categorie, {'label': 'Catégorie'}) }}
             </div>
 
             <div class="col-12 d-flex justify-content-end">

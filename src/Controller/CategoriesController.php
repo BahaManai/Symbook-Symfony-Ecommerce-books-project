@@ -17,7 +17,7 @@ final class CategoriesController extends AbstractController
     public function index(CategoriesRepository $rep): Response
     {
         $categories = $rep->findAll();
-        return $this->render('categories/index.html.twig', [
+        return $this->render('Admin/categories/index.html.twig', [
             'Categories' => $categories,
         ]);
     }
@@ -37,7 +37,7 @@ final class CategoriesController extends AbstractController
             $this->addFlash('success', 'Une catégorie a été ajoutée avec succés');
             return $this->redirectToRoute('admin_categories');
         }
-        return $this->render('categories/create.html.twig', [
+        return $this->render('Admin/categories/create.html.twig', [
             'f' => $form,
         ]);
     }
@@ -56,7 +56,7 @@ final class CategoriesController extends AbstractController
             $this->addFlash('success', 'Une catégorie a été modifiée avec succés');
             return $this->redirectToRoute('admin_categories');
         }
-        return $this->render('categories/update.html.twig', [
+        return $this->render('Admin/categories/update.html.twig', [
             'f' => $form,
         ]);
     }
