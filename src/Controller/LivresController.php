@@ -19,7 +19,7 @@ final class LivresController extends AbstractController
     {
         $livres=$livresRepository->findAll();
         $livres = $paginator->paginate($livresRepository->findAll(), $request->query->getInt('page', 1), 10);
-        return $this->render('livres/index.html.twig', [
+        return $this->render('admin/livres/index.html.twig', [
             'livres' => $livres
         ]);
     }
@@ -55,7 +55,7 @@ final class LivresController extends AbstractController
             $this->addFlash('success', 'Un livre a été ajouté avec succés');
             return $this->redirectToRoute('app_livres');
         }
-        return $this->render('livres/create.html.twig', [
+        return $this->render('admin/livres/create.html.twig', [
             'f' => $form,
         ]);
     }
@@ -73,7 +73,7 @@ final class LivresController extends AbstractController
     public function show(Livres $livre): Response
     // Param convertor
     {
-        return $this->render('livres/detail.html.twig', [
+        return $this->render('admin/livres/detail.html.twig', [
             'livre' => $livre
         ]);
     }
