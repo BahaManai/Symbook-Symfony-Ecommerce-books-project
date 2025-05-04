@@ -41,11 +41,11 @@
             <div class="search-bar">
                 <form class="d-flex" method="get">
                     <select name="filterBy" class="form-select me-2">
-                        <option value="titre">Titre</option>
-                        <option value="auteur">Auteur</option>
-                        <option value="categorie">Catégorie</option>
+                        <option value="titre" {% if filterBy == 'titre' %}selected{% endif %}>Titre</option>
+                        <option value="auteur" {% if filterBy == 'auteur' %}selected{% endif %}>Auteur</option>
+                        <option value="categorie" {% if filterBy == 'categorie' %}selected{% endif %}>Catégorie</option>
                     </select>
-                    <input name="search" type="text" class="form-control me-2" placeholder="Rechercher...">
+                    <input name="search" type="text" class="form-control me-2" placeholder="Rechercher..." value="{{ search }}">
                     <button class="btn btn-outline-primary" type="submit">Rechercher</button>
                 </form>
             </div>
