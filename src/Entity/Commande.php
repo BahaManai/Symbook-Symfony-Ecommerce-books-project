@@ -41,6 +41,10 @@ class Commande
     #[ORM\OneToMany(targetEntity: LigneCommande::class, mappedBy: 'commande')]
     private Collection $lignesCommande;
 
+    #[ORM\ManyToOne(inversedBy: 'Commandes')]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?User $user = null;
+
     public function __construct()
     {
         $this->lignesCommande = new ArrayCollection();
@@ -156,6 +160,18 @@ class Commande
                 $lignesCommande->setCommande(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
 
         return $this;
     }
