@@ -47,7 +47,7 @@ final class LivresController extends AbstractController
     public function show(Livres $livre): Response
     // Param convertor
     {
-        return $this->render('admin/livres/detail.html.twig', [
+        return $this->render('Admin/livres/detail.html.twig', [
             'livre' => $livre
         ]);
     }
