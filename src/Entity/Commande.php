@@ -31,10 +31,6 @@ class Commande
     #[ORM\Column]
     private ?bool $etatPaiement = null;
 
-    #[ORM\ManyToOne(inversedBy: 'Commandes')]
-    #[ORM\JoinColumn(nullable: false)]
-    private ?Utilisateur $utilisateur = null;
-
     /**
      * @var Collection<int, LigneCommande>
      */
@@ -118,18 +114,6 @@ class Commande
     public function setEtatPaiement(bool $etatPaiement): static
     {
         $this->etatPaiement = $etatPaiement;
-
-        return $this;
-    }
-
-    public function getUtilisateur(): ?Utilisateur
-    {
-        return $this->utilisateur;
-    }
-
-    public function setUtilisateur(?Utilisateur $utilisateur): static
-    {
-        $this->utilisateur = $utilisateur;
 
         return $this;
     }
