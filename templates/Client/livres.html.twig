@@ -62,7 +62,7 @@
                             <h5 class="card-title">{{ livre.titre }}</h5>
                             <p class="text-muted mb-2">{{ livre.auteur|default('Auteur inconnu') }}</p>
                             <div class="card-buttons mt-auto">
-                                <a href="{{ path('app_livres_show', {'id': livre.id}) }}" class="btn btn-primary btn-custom">
+                                <a href="{{ path('client_livre_show', {'id': livre.id}) }}" class="btn btn-primary btn-custom">
                                     <i class="bi bi-eye"></i> Voir Détail
                                 </a>
                                 <button class="btn btn-secondary btn-custom"> <i class="bi bi-cart-plus"></i>Ajouter au panier</button>

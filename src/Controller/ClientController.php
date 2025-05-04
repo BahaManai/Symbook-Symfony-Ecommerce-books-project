@@ -31,7 +31,10 @@ final class ClientController extends AbstractController
         );
 
         return $this->render('Client/livres.html.twig', [
-            'livres' => $livres
+                'livres' => $livres,
+                'filterBy' => $filterBy, // Ajoutez filterBy ici
+                'search' => $search     // Ajoutez search ici
+
         ]);
     }
 
