@@ -159,4 +159,12 @@ class Commande
 
         return $this;
     }
+    public function getTotal(): float
+    {
+        $total = 0;
+        foreach ($this->lignesCommande as $ligne) {
+            $total += $ligne->getQuantite() * $ligne->getLivre()->getPrix();
+        }
+        return $total;
+    }
 }

@@ -65,7 +65,11 @@
                                 <a href="{{ path('client_livre_show', {'id': livre.id}) }}" class="btn btn-primary btn-custom">
                                     <i class="bi bi-eye"></i> Voir Détail
                                 </a>
-                                <button class="btn btn-secondary btn-custom"> <i class="bi bi-cart-plus"></i>Ajouter au panier</button>
+                                <form action="{{ path('client_panier_ajouter', {'id': livre.id}) }}" method="post">
+                                    <button type="submit" class="btn btn-secondary btn-custom">
+                                        <i class="bi bi-cart-plus"></i> Ajouter au panier
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
