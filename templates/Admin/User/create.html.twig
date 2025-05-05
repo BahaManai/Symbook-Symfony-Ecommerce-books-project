@@ -1,14 +1,14 @@
-{% extends 'Admin/base.html.twig' %}
+{% extends 'Admin/dynamicbase.html.twig' %}
 
 {% block title %}{{ mode == 'edit' ? 'Modifier un Utilisateur' : 'Créer un nouvel Utilisateur' }}{% endblock %}
 
 {% block body %}
     <div class="container">
         <div class="card shadow p-4">
-            <h2 class="text-primary mb-4">
+            <h2 class="text-2xl font-bold text-gray-800">
                 <i class="bi {{ mode == 'edit' ? 'bi-pencil-square' : 'bi-plus-circle' }} me-2"></i>
                 {{ mode == 'edit' ? 'Modifier un Utilisateur' : 'Créer un nouvel Utilisateur' }}
-            </h2>
+            </h2><br>
 
             {{ form_start(f, {'attr': {'class': 'row g-3'}}) }}
 
