@@ -41,11 +41,11 @@
             <div class="search-bar">
                 <form class="d-flex" method="get">
                     <select name="filterBy" class="form-select me-2">
-                        <option value="titre">Titre</option>
-                        <option value="auteur">Auteur</option>
-                        <option value="categorie">Catégorie</option>
+                        <option value="titre" {% if filterBy == 'titre' %}selected{% endif %}>Titre</option>
+                        <option value="auteur" {% if filterBy == 'auteur' %}selected{% endif %}>Auteur</option>
+                        <option value="categorie" {% if filterBy == 'categorie' %}selected{% endif %}>Catégorie</option>
                     </select>
-                    <input name="search" type="text" class="form-control me-2" placeholder="Rechercher...">
+                    <input name="search" type="text" class="form-control me-2" placeholder="Rechercher..." value="{{ search }}">
                     <button class="btn btn-outline-primary" type="submit">Rechercher</button>
                 </form>
             </div>
@@ -62,10 +62,14 @@
                             <h5 class="card-title">{{ livre.titre }}</h5>
                             <p class="text-muted mb-2">{{ livre.auteur|default('Auteur inconnu') }}</p>
                             <div class="card-buttons mt-auto">
-                                <a href="{{ path('app_livres_show', {'id': livre.id}) }}" class="btn btn-primary btn-custom">
+                                <a href="{{ path('client_livre_show', {'id': livre.id}) }}" class="btn btn-primary btn-custom">
                                     <i class="bi bi-eye"></i> Voir Détail
                                 </a>
-                                <button class="btn btn-secondary btn-custom"> <i class="bi bi-cart-plus"></i>Ajouter au panier</button>
+                                <form action="{{ path('client_panier_ajouter', {'id': livre.id}) }}" method="post">
+                                    <button type="submit" class="btn btn-secondary btn-custom">
+                                        <i class="bi bi-cart-plus"></i> Ajouter au panier
+                                    </button>
+                                </form>
                             </div>
                         </div>
                     </div>
