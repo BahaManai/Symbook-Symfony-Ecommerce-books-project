@@ -23,6 +23,15 @@ final class LivresController extends AbstractController
             'livres' => $livres
         ]);
     }
+    #[Route('/admin/livres/new', name: 'app_livres_new')]
+    public function allbooks(LivresRepository $livresRepository, PaginatorInterface $paginator, Request $request): Response
+    {
+        $livres=$livresRepository->findAll();
+        $livres = $paginator->paginate($livresRepository->findAll(), $request->query->getInt('page', 1), 10);
+        return $this->render('admin/livres/newindex.html.twig', [
+            'livres' => $livres
+        ]);
+    }
     #[Route('/admin/livres/create', name: 'app_livres_create')]
     public function create(Request $request, EntityManagerInterface $em): Response
     {
