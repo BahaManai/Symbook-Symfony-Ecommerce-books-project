@@ -221,7 +221,7 @@
 
                     <div class="item-price">
                         <div>
-                            <span class="price-original">{{ (item.livre.prix * 1.2)|number_format(2, ',', ' ') }} TND</span>
+                            <span class="price-original">{{ (item.livre.prix)|number_format(2, ',', ' ') }} TND</span>
                         </div>
                     </div>
                 </div>
@@ -232,8 +232,8 @@
                     Total ({{ items|length }} item{% if items|length > 1 %}s{% endif %}): {{ total|number_format(2, ',', ' ') }} TND
                 </div>
 
-                <a href="#" class="checkout-btn">
-                    Proceed to Checkout
+                <a href="{{ path('client_checkout') }}" class="checkout-btn">
+                    Passer la commande
                 </a>
 
                 <div>
