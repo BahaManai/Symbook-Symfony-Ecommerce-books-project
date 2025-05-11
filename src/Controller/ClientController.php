@@ -18,8 +18,8 @@ final class ClientController extends AbstractController
 {#[Route('/client/livres', name: 'client_livres')]
     public function all(Request $request, LivresRepository $livresRepository, PaginatorInterface $paginator): Response
     {
-        $filterBy = $request->query->get('filterBy', 'titre');  // Valeur par défaut 'titre'
-        $search = $request->query->get('search', '');  // Valeur par défaut vide
+        $filterBy = $request->query->get('filterBy', 'titre');
+        $search = $request->query->get('search', '');
 
         if ($filterBy && $search) {
             $livres = $livresRepository->search($filterBy, $search);
@@ -35,8 +35,8 @@ final class ClientController extends AbstractController
 
         return $this->render('Client/livres.html.twig', [
                 'livres' => $livres,
-                'filterBy' => $filterBy, // Ajoutez filterBy ici
-                'search' => $search     // Ajoutez search ici
+                'filterBy' => $filterBy,
+                'search' => $search
 
         ]);
     }
@@ -44,117 +44,79 @@ final class ClientController extends AbstractController
 
     #[Route('/client/livre/show/{id}', name: 'client_livre_show')]
     public function show(Livres $livre): Response
-        // Param convertor
+
     {
         return $this->render('Client/detail.html.twig', [
             'livre' => $livre
         ]);
     }
+    //ajouter au panier
     #[Route('/client/panier/ajouter/{id}', name: 'client_panier_ajouter')]
-    public function ajouterAuPanier(Livres $livre, EntityManagerInterface $em): Response
+    public function ajouterAuPanier(Livres $livre, Request $request): Response
     {
-        $user = $this->getUser();
+        $session = $request->getSession();
+        $panier = $session->get('panier', []);
 
-        // Recherche d'une commande "en attente" pour l'utilisateur
-        $commande = $em->getRepository(Commande::class)->findOneBy([
-            'user' => $user,
-            'etat' => 'en cours',
-        ]);
+        $panier[$livre->getId()] = ($panier[$livre->getId()] ?? 0) + 1;
+        $session->set('panier', $panier);
 
-        // Création de la commande si elle n'existe pas encore
-        if (!$commande) {
-            $commande = new Commande();
-            $commande->setUser($user);
-            $commande->setEtat('en cours');
-            $commande->setNumero(uniqid('CMD-')); // Génère un numéro unique
-            $commande->setDateCommande(new \DateTime());
-            $commande->setModePaiement(""); // Vide pour l’instant
-            $commande->setEtatPaiement(false); // Paiement non effectué
+        $this->addFlash('success', 'Le livre "'.$livre->getTitre().'" a été ajouté au panier');
+        return $this->redirectToRoute('client_livres');
+    }
+     //afficher le panier
+    #[Route('/client/panier', name: 'client_panier')]
+    public function panier(Request $request, LivresRepository $livresRepository): Response
+    {
+        $panier = $request->getSession()->get('panier', []);
+        $livres = [];
+        $total = 0;
 
-            $em->persist($commande);
-            $em->flush();
-        }
-
-        // Vérifie si le livre est déjà dans le panier
-        $ligneExistante = null;
-        foreach ($commande->getLignesCommande() as $ligne) {
-            if ($ligne->getLivre()->getId() === $livre->getId()) {
-                $ligneExistante = $ligne;
-                break;
+        foreach ($panier as $id => $quantite) {
+            $livre = $livresRepository->find($id);
+            if ($livre) {
+                $livres[] = [
+                    'livre' => $livre,
+                    'quantite' => $quantite,
+                    'total' => $livre->getPrix() * $quantite
+                ];
+                $total += $livre->getPrix() * $quantite;
             }
         }
 
-        if ($ligneExistante) {
-            $ligneExistante->setQuantite($ligneExistante->getQuantite() + 1);
-        } else {
-            $ligne = new LigneCommande();
-            $ligne->setLivre($livre)
-                ->setQuantite(1)
-                ->setPrixUnitaire($livre->getPrix())
-                ->setCommande($commande);
-
-            $em->persist($ligne);
-        }
-
-        $em->flush();
-
-        $this->addFlash('info', 'Livre ajouté au panier.');
-
-        // 🔁 Redirige vers la page précédente (pas vers le panier !)
-        return $this->redirectToRoute('client_livres', ['id' => $livre->getId()]);
-    }
-
-
-
-
-
-    #[Route('/client/panier', name: 'client_panier')]
-    public function panier(EntityManagerInterface $em): Response
-    {
-        $user = $this->getUser();
-
-        // Cherche une commande en cours pour cet utilisateur
-        $commande = $em->getRepository(Commande::class)->findOneBy([
-            'user' => $user,
-            'etat' => 'en cours',
-        ]);
-
-        // Si aucune commande en cours n'est trouvée, on renvoie une commande vide
-        if (!$commande) {
-            $commande = new Commande();
-        }
-
-        // Passer la commande avec ses lignes de commande à la vue
         return $this->render('Client/lignecommande.html.twig', [
-            'commande' => $commande,
+            'items' => $livres,
+            'total' => $total
         ]);
     }
-
-    // Modifier la quantité dans le panier
- #[Route('/client/panier/modifier/{id}', name: 'client_panier_modifier')]
-    public function modifierQuantite(Request $request, LigneCommande $ligne, EntityManagerInterface $em): Response
+    //modifier la quantite
+    #[Route('/client/panier/modifier/{id}', name: 'client_panier_modifier')]
+    public function modifierPanier(Livres $livre, Request $request): Response
     {
-        $quantite = $request->request->getInt('quantite');
+        $quantite = $request->request->getInt('quantite', 1);
+        $session = $request->getSession();
+        $panier = $session->get('panier', []);
 
-        // Si la quantité est 0, supprime la ligne
-        if ($quantite < 1) {
-            $em->remove($ligne);
-            $this->addFlash('success', 'Article retiré du panier.');
+        if ($quantite > 0) {
+            $panier[$livre->getId()] = $quantite;
         } else {
-            $ligne->setQuantite($quantite);
+            unset($panier[$livre->getId()]);
         }
 
-        $em->flush();
-        return $this->redirectToRoute('client_panier'); // Redirige vers le panier
+        $session->set('panier', $panier);
+        return $this->redirectToRoute('client_panier');
     }
-
-    // Supprimer un article du panier
     #[Route('/client/panier/supprimer/{id}', name: 'client_panier_supprimer')]
-    public function supprimerLigne(LigneCommande $ligne, EntityManagerInterface $em): Response
+    public function supprimerDuPanier(Livres $livre, Request $request): Response
     {
-        $em->remove($ligne);
-        $em->flush();
-        $this->addFlash('success', 'Article retiré du panier');
+        $session = $request->getSession();
+        $panier = $session->get('panier', []);
+
+        if (isset($panier[$livre->getId()])) {
+            unset($panier[$livre->getId()]);
+            $session->set('panier', $panier);
+            $this->addFlash('success', 'Livre retiré du panier');
+        }
+
         return $this->redirectToRoute('client_panier');
     }
 }

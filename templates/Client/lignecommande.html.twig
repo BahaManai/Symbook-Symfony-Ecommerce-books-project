@@ -3,94 +3,243 @@
 {% block stylesheets %}
     {{ parent() }}
     <style>
-        .cart-item {
-            transition: all 0.3s ease;
-            border-bottom: 1px solid #eee;
-            padding: 1.5rem 0;
+        .cart-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
         }
+
+        .cart-header {
+            display: flex;
+            justify-content: space-between;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+            margin-bottom: 20px;
+        }
+
+        .cart-header h1 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .cart-item {
+            display: flex;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .item-image {
+            width: 100px;
+            margin-right: 20px;
+        }
+
+        .item-image img {
+            max-width: 100%;
+            height: auto;
+            object-fit: contain;
+        }
+
+        .item-details {
+            flex-grow: 1;
+        }
+
+        .item-title {
+            font-size: 1.1rem;
+            font-weight: 500;
+            margin-bottom: 5px;
+        }
+
+        .item-author {
+            color: #666;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+        }
+
         .quantity-controls {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            border: 2px solid #ffb700;
+            border-radius: 25px;
+            padding: 5px;
+            width: fit-content;
         }
-        .input-group-quantity {
-            width: auto;
-            flex-wrap: nowrap;
+
+        .quantity-btn {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #333;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
         }
+
         .quantity-input {
-            width: 50px;
+            width: 40px;
             text-align: center;
-            margin: 0 0.5rem;
+            border: none;
+            font-size: 1rem;
+            padding: 0;
+            margin: 0 5px;
         }
-        .btn-quantity {
-            padding: 0.25rem 0.5rem;
+
+        .quantity-input:focus {
+            outline: none;
+        }
+
+        .item-price {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            min-width: 150px;
+        }
+
+
+        .price-original {
+            color: #999;
+            font-size: 0.9rem;
+        }
+
+
+
+        .remove-link {
+            color: #0dcaf0;
+            text-decoration: none;
+            margin-right: 20px;
+            margin-left: 20px;
+        }
+
+        .remove-link:hover {
+            text-decoration: underline;
+        }
+
+        .cart-summary {
+            margin-top: 30px;
+        }
+
+        .cart-total {
+            font-size: 1.2rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+
+        .checkout-btn {
+            background-color: #ffb700;
+            color: #000;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .checkout-btn:hover {
+            background-color: #ffa500;
+        }
+
+        .continue-shopping {
+            display: inline-block;
+            margin-top: 15px;
+            color: #666;
+            text-decoration: none;
+        }
+
+        .continue-shopping:hover {
+            color: #333;
+            text-decoration: underline;
+        }
+
+        .empty-cart {
+            text-align: center;
+            padding: 40px 0;
+        }
+
+        @media (max-width: 768px) {
+            .cart-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .item-image {
+                margin-bottom: 15px;
+            }
+
+            .item-price {
+                align-items: flex-start;
+                margin-top: 15px;
+            }
         }
     </style>
 {% endblock %}
 
 {% block body %}
-    <div class="container py-5">
-        <h1 class="mb-4">Votre Panier</h1>
+    <div class="cart-container">
+        <div class="cart-header">
+            <h1>Votre Panier</h1>
 
-        {% if commande.lignesCommande is empty %}
-            <div class="alert alert-info">
-                Votre panier est vide
+        </div>
+
+        {% if items is empty %}
+            <div class="empty-cart">
+                <i class="bi bi-cart-x me-2"></i>Votre panier est vide
             </div>
         {% else %}
-            <div class="row">
-                <div class="col-lg-8">
-                    {% for ligne in commande.lignesCommande %}
-                        <div class="cart-item">
-                            <div class="row align-items-center">
-                                <div class="col-md-3">
-                                    <img src="{{ ligne.livre.image|default('placeholder.jpg') }}"
-                                         alt="{{ ligne.livre.titre }}"
-                                         class="img-fluid rounded">
-                                </div>
-                                <div class="col-md-5">
-                                    <h5>{{ ligne.livre.titre }}</h5>
-                                    <p class="text-muted mb-1">{{ ligne.livre.auteur }}</p>
-                                    <p class="text-success h5">{{ ligne.livre.prix }} €</p>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="quantity-controls">
-                                        <form method="post" action="{{ path('client_panier_modifier', {'id': ligne.id}) }}" class="d-flex align-items-center">
-                                            <input type="hidden" name="_token" value="{{ csrf_token('modify' ~ ligne.id) }}">
-                                            <div class="input-group input-group-quantity">
-                                                <button type="button" class="btn btn-outline-secondary btn-quantity minus-btn">
-                                                    <i class="bi bi-dash-lg"></i>
-                                                </button>
-                                                <input type="number"
-                                                       name="quantite"
-                                                       value="{{ ligne.quantite }}"
-                                                       min="1"
-                                                       class="form-control quantity-input">
-                                                <button type="button" class="btn btn-outline-secondary btn-quantity plus-btn">
-                                                    <i class="bi bi-plus-lg"></i>
-                                                </button>
-                                            </div>
-                                            <a href="{{ path('client_panier_supprimer', {'id': ligne.id}) }}"
-                                               class="btn btn-danger ms-2"
-                                               title="Supprimer">
-                                                <i class="bi bi-trash"></i>
-                                            </a>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
+            {% for item in items %}
+                <div class="cart-item">
+                    <div class="item-image">
+                        <img src="{{ item.livre.image|default('images/placeholder.jpg') }}"
+                             alt="{{ item.livre.titre }}">
+                    </div>
+
+                    <div class="item-details">
+                        <div class="item-title">{{ item.livre.titre }}</div>
+                        <div class="item-author">{{ item.livre.auteur }}</div>
+                    </div>
+
+                    <form method="post" action="{{ path('client_panier_modifier', {'id': item.livre.id}) }}" class="quantity-form">
+                        <input type="hidden" name="_token" value="{{ csrf_token('modify_' ~ item.livre.id) }}">
+                        <div class="quantity-controls">
+                            <button type="button" class="quantity-btn decrease-btn">-</button>
+                            <input type="number"
+                                   name="quantite"
+                                   value="{{ item.quantite }}"
+                                   min="1"
+                                   class="quantity-input"
+                                   aria-label="Quantité">
+                            <button type="button" class="quantity-btn increase-btn">+</button>
                         </div>
-                    {% endfor %}
+                    </form>
+
+                    <a href="{{ path('client_panier_supprimer', {'id': item.livre.id}) }}" class="remove-link">
+                        Remove
+                    </a>
+
+                    <div class="item-price">
+                        <div>
+                            <span class="price-original">{{ (item.livre.prix * 1.2)|number_format(2, ',', ' ') }} TND</span>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+
+            <div class="cart-summary">
+                <div class="cart-total">
+                    Total ({{ items|length }} item{% if items|length > 1 %}s{% endif %}): {{ total|number_format(2, ',', ' ') }} TND
                 </div>
 
-                <div class="col-lg-4">
-                    <div class="total-section">
-                        <h4 class="mb-4">Récapitulatif</h4>
-                        <div class="d-flex justify-content-between mb-3">
-                            <span>Total articles :</span>
-                            <span>{{ commande.total }} €</span>
-                        </div>
-                        <a href="#" class="btn btn-primary w-100 btn-lg">Valider la commande</a>
-                    </div>
+                <a href="#" class="checkout-btn">
+                    Proceed to Checkout
+                </a>
+
+                <div>
+                    <a href="{{ path('client_livres') }}" class="continue-shopping">
+                        <i class="bi bi-arrow-left me-2"></i>Continuer mes achats
+                    </a>
                 </div>
             </div>
         {% endif %}
@@ -101,18 +250,29 @@
     {{ parent() }}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            document.querySelectorAll('.plus-btn, .minus-btn').forEach(button => {
+            // Gestion des boutons + et - pour la quantité
+            document.querySelectorAll('.decrease-btn').forEach(button => {
                 button.addEventListener('click', function() {
-                    const input = this.closest('.input-group-quantity').querySelector('.quantity-input');
-                    let value = parseInt(input.value);
-
-                    if (this.classList.contains('plus-btn')) {
-                        value++;
-                    } else {
-                        value = Math.max(1, value - 1);
+                    const input = this.parentElement.querySelector('.quantity-input');
+                    const currentValue = parseInt(input.value);
+                    if (currentValue > 1) {
+                        input.value = currentValue - 1;
+                        this.closest('form').submit();
                     }
+                });
+            });
 
-                    input.value = value;
+            document.querySelectorAll('.increase-btn').forEach(button => {
+                button.addEventListener('click', function() {
+                    const input = this.parentElement.querySelector('.quantity-input');
+                    input.value = parseInt(input.value) + 1;
+                    this.closest('form').submit();
+                });
+            });
+
+            // Soumission automatique du formulaire lors du changement manuel
+            document.querySelectorAll('.quantity-input').forEach(input => {
+                input.addEventListener('change', function() {
                     this.closest('form').submit();
                 });
             });
