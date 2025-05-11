@@ -1,6 +1,6 @@
 {% extends 'Client/base.html.twig' %}
 
-{% block title %}Vitrine Livres - Promotions{% endblock %}
+{% block title %}Vitrine Livres - {% endblock %}
 
 {% block body %}
     <div class="mb-4">
@@ -31,8 +31,8 @@
                         </button>
                     </div>
                     <div class="card-body">
-                        <h5 class="card-title">{{ livre.titre|u.truncate(40, '...') }}</h5>
-                        <p class="text-muted mb-1">{{ livre.auteur|default('Auteur inconnu')|u.truncate(25, '...') }}</p>
+                        <h5 class="card-title">{{ livre.titre}}</h5>
+                        <p class="text-muted mb-1">{{ livre.auteur}}</p>
                         <div class="mt-2">
                             <p class="original-price mb-0 small">{{ livre.prix|number_format(2, '.', ',') }} TND</p>
                         </div>

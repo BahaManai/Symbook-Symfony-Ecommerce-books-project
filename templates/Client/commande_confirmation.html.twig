@@ -1,0 +1,36 @@
+{% extends 'Client/base.html.twig' %}
+{% block body %}
+    <title>Confirmation de commande</title>
+
+
+<h1>Merci pour votre commande {{ commande.user.prenom }} !</h1>
+
+<h3>Détails de la commande #{{ commande.numero }}</h3>
+<p>Date : {{ commande.dateCommande|date('d/m/Y H:i') }}</p>
+<p>Mode de paiement : {{ commande.modePaiement }}</p>
+
+<table border="1" cellpadding="10">
+    <thead>
+    <tr>
+        <th>Livre</th>
+        <th>Prix unitaire</th>
+        <th>Quantité</th>
+        <th>Total</th>
+    </tr>
+    </thead>
+    <tbody>
+    {% for ligne in commande.lignesCommande %}
+        <tr>
+            <td>{{ ligne.livre.titre }}</td>
+            <td>{{ ligne.prixUnitaire }}TND</td>
+            <td>{{ ligne.quantite }}</td>
+            <td>{{ (ligne.prixUnitaire * ligne.quantite) }}TND</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+<h4>Total global : {{ commande.total|format_currency('TND') }}</h4>
+
+<p>L'équipe de Librairie XYZ</p>
+{% endblock %}

@@ -1,0 +1,18 @@
+{% extends 'Client/base.html.twig' %}
+{% block body %}
+    <form action="{{ path('client_checkout_submit') }}" method="post">
+        <div class="payment-method">
+            <h3>Choisissez votre mode de paiement :</h3>
+            <div>
+                <input type="radio" id="stripe" name="payment_method" value="stripe">
+                <label for="stripe">Carte bancaire (Stripe)</label>
+            </div>
+            <div>
+                <input type="radio" id="cash" name="payment_method" value="cash">
+                <label for="cash"> Paiement en espèces</label>
+            </div>
+        </div>
+
+        <button type="submit">Payer</button>
+    </form>
+{% endblock %}

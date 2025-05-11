@@ -1,0 +1,66 @@
+{% extends 'Client/base.html.twig' %}
+
+{% block title %}Historique des commandes{% endblock %}
+
+{% block stylesheets %}
+    {{ parent() }}
+    <style>
+        .order-card {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            margin-bottom: 1rem;
+            padding: 1.5rem;
+        }
+        .status-badge {
+            font-size: 0.8rem;
+            padding: 0.35rem 0.75rem;
+            border-radius: 20px;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div class="container py-4">
+        <h1 class="mb-4">Historique des commandes</h1>
+
+        {% if commandes is empty %}
+            <div class="alert alert-info">
+                <i class="bi bi-receipt me-2"></i>
+                Aucune commande trouvée
+            </div>
+        {% else %}
+            <div class="row">
+                {% for commande in commandes %}
+                    <div class="col-12 mb-3">
+                        <div class="order-card">
+                            <div class="row align-items-center">
+                                <div class="col-md-3">
+                                    <strong>N°{{ commande.numero }}</strong>
+                                </div>
+                                <div class="col-md-2">
+                                    {{ commande.dateCommande|date('d/m/Y') }}
+                                </div>
+                                <div class="col-md-2">
+                            <span class="status-badge
+                                {% if commande.etat == 'completée' %}bg-success
+                                {% elseif commande.etat == 'en cours' %}bg-warning
+                                {% else %}bg-secondary{% endif %} text-white">
+                                {{ commande.etat|capitalize }}
+                            </span>
+                                </div>
+                                <div class="col-md-3">
+                                    <i class="bi bi-credit-card me-1"></i>
+                                    {{ commande.modePaiement|default('Non spécifié') }}
+                                </div>
+                                <div class="col-md-2 text-end">
+                                    <span class="fw-bold">{{ commande.total}}TND</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+{% endblock %}
