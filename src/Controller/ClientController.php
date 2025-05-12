@@ -145,10 +145,6 @@ final class ClientController extends AbstractController
         $panier = $request->getSession()->get('panier', []);
         $paymentMethod = $request->request->get('payment_method');
 
-        if (empty($panier)) {
-            $this->addFlash('error', 'Votre panier est vide !');
-            return $this->redirectToRoute('client_panier');
-        }
         $commande = new Commande();
         $commande->setNumero('CMD-' . uniqid());
         $commande->setDateCommande(new \DateTime());
@@ -169,7 +165,7 @@ final class ClientController extends AbstractController
 
         if ($paymentMethod === 'cash') {
             $commande->setModePaiement('Cash');
-            $commande->setEtatPaiement(false);
+            $commande->setEtatPaiement(true);
 
             $entityManager->persist($commande);
             $entityManager->flush();
@@ -180,7 +176,7 @@ final class ClientController extends AbstractController
 
         } else {
             $commande->setModePaiement('Stripe');
-            $commande->setEtatPaiement(false);
+            $commande->setEtatPaiement(true);
 
             $entityManager->persist($commande);
             $entityManager->flush();
@@ -192,7 +188,7 @@ final class ClientController extends AbstractController
                 $livre = $livresRepository->find($id);
                 $lineItems[] = [
                     'price_data' => [
-                        'currency' => 'eur',
+                        'currency' => 'EUR',
                         'product_data' => ['name' => $livre->getTitre()],
                         'unit_amount' => (int) round($livre->getPrix() * 100),
                     ],
@@ -239,7 +235,7 @@ final class ClientController extends AbstractController
 
         $commandes = $em->getRepository(Commande::class)->findBy(
             ['user' => $user],
-            ['dateCommande' => 'DESC']
+            ['dateCommande' => 'ASC']
         );
 
         return $this->render('client/historiqueCommande.html.twig', [
