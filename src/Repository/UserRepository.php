@@ -32,6 +32,20 @@ class UserRepository extends ServiceEntityRepository implements PasswordUpgrader
         $this->getEntityManager()->persist($user);
         $this->getEntityManager()->flush();
     }
+    public function findTopClients(): array
+    {
+        return $this->createQueryBuilder('u')
+            ->select('u as user, COUNT(c.id) AS nbCommandes')
+            ->join('u.Commandes', 'c')
+            ->where('c.etatPaiement = 1')
+            ->groupBy('u.id')
+            ->orderBy('nbCommandes', 'DESC')
+            ->setMaxResults(4)
+            ->getQuery()
+            ->getResult();
+    }
+
+
 
     //    /**
     //     * @return User[] Returns an array of User objects

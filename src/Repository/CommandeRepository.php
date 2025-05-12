@@ -15,6 +15,14 @@ class CommandeRepository extends ServiceEntityRepository
     {
         parent::__construct($registry, Commande::class);
     }
+    public function findRecentCommandes(): array
+    {
+        return $this->createQueryBuilder('c')
+            ->orderBy('c.dateCommande', 'DESC')
+            ->setMaxResults(4)
+            ->getQuery()
+            ->getResult();
+    }
 
     //    /**
     //     * @return Commande[] Returns an array of Commande objects

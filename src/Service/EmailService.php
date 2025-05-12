@@ -4,7 +4,8 @@ namespace App\Service;
 
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
-
+use App\Entity\Commande;
+use Symfony\Component\Mime\Address;
 class EmailService
 {
     private $mailer;
@@ -15,7 +16,7 @@ class EmailService
     }
 
     public function send(
-        string $from,
+        Address $from,
         string $to,
         string $subject,
         string $template,
@@ -30,4 +31,18 @@ class EmailService
 
         $this->mailer->send($email);
     }
+    public function sendCommandeConfirmation(Commande $commande): void
+    {
+        $email = (new TemplatedEmail())
+            ->from(new Address('aminekilani901@gmail.com', 'BookNest'))
+            ->to($commande->getUser()->getEmail())
+            ->subject('Confirmation de votre commande - ' . $commande->getNumero())
+            ->htmlTemplate('Client/commande_confirmation.html.twig')
+            ->context([
+                'commande' => $commande,
+            ]);
+
+        $this->mailer->send($email);
+    }
+
 }
