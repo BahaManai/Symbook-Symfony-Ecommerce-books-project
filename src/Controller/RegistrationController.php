@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Contracts\Translation\TranslatorInterface;
+use Symfony\Component\Mime\Address;
 
 class RegistrationController extends AbstractController
 {
@@ -41,7 +42,7 @@ class RegistrationController extends AbstractController
 
             // Envoi de l'email de confirmation
             $this->emailService->send(
-                'aminekilani901@gmail.com',
+                new Address('aminekilani901@gmail.com', 'BookNest'),
                 $user->getEmail(),
                 'BookNest | Mail de confirmation',
                 'registration/confirmation_email.html.twig',

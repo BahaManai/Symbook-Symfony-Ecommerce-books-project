@@ -9,7 +9,7 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
-
+use App\Service\EmailService;
 use App\Entity\Livres;
 use App\Repository\LivresRepository;
 use Knp\Component\Pager\PaginatorInterface;
@@ -140,6 +140,7 @@ final class ClientController extends AbstractController
         Request                $request,
         LivresRepository       $livresRepository,
         EntityManagerInterface $entityManager,
+        EmailService $emailService
     ): Response
     {
         $panier = $request->getSession()->get('panier', []);
@@ -174,7 +175,7 @@ final class ClientController extends AbstractController
             $entityManager->persist($commande);
             $entityManager->flush();
             $request->getSession()->remove('panier');
-
+            $emailService->sendCommandeConfirmation($commande);
             $this->addFlash('success', 'Commande confirmée ! Un email récapitulatif vous a été envoyé.');
             return $this->redirectToRoute('client_livres');
 
@@ -212,12 +213,12 @@ final class ClientController extends AbstractController
             return $this->redirect($session->url);
         }
     }
-
     #[Route('/client/checkout/success', name: 'client_checkout_success')]
     public function checkoutSuccess(
-        Request                $request,
+        Request $request,
         EntityManagerInterface $entityManager,
-        CommandeRepository     $commandeRepository,
+        CommandeRepository $commandeRepository,
+        EmailService $emailService
     ): Response
     {
         if ($request->query->has('commande_id')) {
@@ -227,12 +228,17 @@ final class ClientController extends AbstractController
                 $commande->setEtatPaiement(true);
                 $entityManager->flush();
                 $request->getSession()->remove('panier');
+
+                // Envoi de l'email de confirmation
+                $emailService->sendCommandeConfirmation($commande);
+
                 $this->addFlash('success', 'Paiement confirmé ! Un email récapitulatif vous a été envoyé.');
             }
         }
 
         return $this->redirectToRoute('client_livres');
     }
+
     #[Route('/Clinet/historiqueCommande', name: 'historiqueCommande')]
     public function historiqueCommande(EntityManagerInterface $em): Response {
         $user = $this->getUser();
