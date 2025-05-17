@@ -102,11 +102,15 @@
 <!-- Main content -->
 <div class="{{ app.request.get('_route') != 'app_admin' ? 'flex-1 md:ml-64 p-6' : 'flex-1 flex flex-col overflow-hidden md:ml-64' }}">
     {% for type, messages in app.flashes %}
-        <div class="bg-{{ type == 'success' ? 'green' : 'red' }}-100 border border-{{ type == 'success' ? 'green' : 'red' }}-400 text-{{ type == 'success' ? 'green' : 'red' }}-700 px-4 py-3 rounded relative mb-4">
-            <strong class="font-bold">{{ type|capitalize }}!</strong>
-            <span class="block sm:inline">{{ messages[0] }}</span>
-        </div>
+        {% for message in messages %}
+            <div class="alert alert-{{ type }} alert-dismissible fade show" role="alert">
+                <i class="bi bi-info-circle me-2"></i>
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
     {% endfor %}
+
 
     {% block body %}{% endblock %}
 </div>

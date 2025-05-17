@@ -2,6 +2,93 @@
 
 {% block title %}Vitrine Livres - {% endblock %}
 
+{% block stylesheets %}
+    <style>
+        .welcome-section {
+            background: linear-gradient(135deg, rgba(0, 31, 63, 0.8), rgba(0, 31, 63, 0.6));
+            border-radius: 12px;
+            padding: 60px 40px;
+            color: #ffffff;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+            position: relative;
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .welcome-content {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .welcome-title {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .welcome-text {
+            font-size: 1.2rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            opacity: 0.9;
+        }
+
+        .btn-cta {
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .btn-cta:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn-primary.btn-cta {
+            background-color: #fd7e14;
+            border-color: #fd7e14;
+        }
+
+        .btn-outline-light.btn-cta {
+            border-width: 2px;
+            color: #ffffff;
+        }
+
+        @media (max-width: 768px) {
+            .welcome-section {
+                padding: 40px 20px;
+            }
+            .welcome-title {
+                font-size: 2rem;
+            }
+            .welcome-text {
+                font-size: 1rem;
+            }
+            .btn-cta {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Animation de fond dynamique (optionnel) */
+        .welcome-section.dynamic-bg {
+            background: linear-gradient(135deg, #001f3f, #003087, #001f3f);
+            background-size: 200% 200%;
+            animation: gradientAnimation 8s ease infinite;
+        }
+
+        @keyframes gradientAnimation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
     <div class="mb-4">
         <form class="d-flex" method="get">
@@ -19,6 +106,25 @@
         </form>
     </div>
 
+    {% if not app.user %}
+        <section class="welcome-section mb-5" aria-labelledby="welcome-title">
+            <div class="welcome-content">
+                <h1 id="welcome-title" class="welcome-title">Explorez un monde de livres avec BookNest</h1>
+                <p class="welcome-text">
+                    Parcourez notre vaste collection de livres, des romans captivants aux essais inspirants.
+                    Connectez-vous pour ajouter vos coups de cœur à votre panier ou à vos favoris et commencez votre voyage littéraire !
+                </p>
+                <div class="welcome-cta mt-4">
+                    <a href="{{ path('app_register') }}" class="btn btn-primary btn-lg btn-cta me-3">
+                        <i class="bi bi-person-plus me-2"></i> Rejoindre BookNest
+                    </a>
+                    <a href="{{ path('app_login') }}" class="btn btn-outline-light btn-lg btn-cta">
+                        <i class="bi bi-box-arrow-in-right me-2"></i> Se connecter
+                    </a>
+                </div>
+            </div>
+        </section>
+    {% endif %}
 
     <div class="row">
         {% for livre in livres %}
@@ -56,4 +162,17 @@
     <div class="navigation">
         {{ knp_pagination_render(livres) }}
     </div>
+{% endblock %}
+
+{% block javascripts %}
+    <script>
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const welcomeSection = document.querySelector('.welcome-section');
+            if (welcomeSection) {
+                welcomeSection.classList.add('dynamic-bg');
+            }
+        });
+
+    </script>
 {% endblock %}
