@@ -20,6 +20,11 @@ use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 
 final class ClientController extends AbstractController
 {
+    #[Route('/', name: 'home_redirect')]
+    public function homeRedirect(): Response
+    {
+        return $this->redirectToRoute('client_livres');
+    }
     #[Route('/client/livres', name: 'client_livres')]
     public function all(Request $request, LivresRepository $livresRepository, PaginatorInterface $paginator): Response
     {
@@ -60,6 +65,10 @@ final class ClientController extends AbstractController
     #[Route('/client/panier/ajouter/{id}', name: 'client_panier_ajouter')]
     public function ajouterAuPanier(Livres $livre, Request $request): Response
     {
+        if (!$this->getUser()) {
+            $this->addFlash('error', 'Vous devez être connecté pour accéder à votre panier.');
+            return $this->redirectToRoute('app_login');
+        }
         $session = $request->getSession();
         $panier = $session->get('panier', []);
 
@@ -74,6 +83,10 @@ final class ClientController extends AbstractController
     #[Route('/client/panier', name: 'client_panier')]
     public function panier(Request $request, LivresRepository $livresRepository): Response
     {
+        if (!$this->getUser()) {
+            $this->addFlash('error', 'Vous devez être connecté pour accéder à votre panier.');
+            return $this->redirectToRoute('app_login');
+        }
         $panier = $request->getSession()->get('panier', []);
         $livres = [];
         $total = 0;
@@ -235,10 +248,14 @@ final class ClientController extends AbstractController
         return $this->redirectToRoute('client_livres');
     }
 
-    #[Route('/Clinet/historiqueCommande', name: 'historiqueCommande')]
+    #[Route('/client/historiqueCommande', name: 'historiqueCommande')]
     public function historiqueCommande(EntityManagerInterface $em): Response {
-        $user = $this->getUser();
+        if (!$this->getUser()) {
+            $this->addFlash('error', 'Connectez-vous pour consulter vos commandes.');
+            return $this->redirectToRoute('app_login');
+        }
 
+        $user = $this->getUser();
         $commandes = $em->getRepository(Commande::class)->findBy(
             ['user' => $user],
             ['dateCommande' => 'ASC']
@@ -248,6 +265,4 @@ final class ClientController extends AbstractController
             'commandes' => $commandes
         ]);
     }
-
-
 }

@@ -15,20 +15,11 @@ use Symfony\Component\Routing\Attribute\Route;
 final class LivresController extends AbstractController
 {
     #[Route('/admin/livres', name: 'app_livres')]
-    public function all(LivresRepository $livresRepository, PaginatorInterface $paginator, Request $request): Response
-    {
-        $livres=$livresRepository->findAll();
-        $livres = $paginator->paginate($livresRepository->findAll(), $request->query->getInt('page', 1), 10);
-        return $this->render('admin/livres/index.html.twig', [
-            'livres' => $livres
-        ]);
-    }
-    #[Route('/admin/livres/new', name: 'app_livres_new')]
     public function allbooks(LivresRepository $livresRepository, PaginatorInterface $paginator, Request $request): Response
     {
         $livres=$livresRepository->findAll();
         $livres = $paginator->paginate($livresRepository->findAll(), $request->query->getInt('page', 1), 10);
-        return $this->render('admin/livres/newindex.html.twig', [
+        return $this->render('admin/livres/index.html.twig', [
             'livres' => $livres
         ]);
     }

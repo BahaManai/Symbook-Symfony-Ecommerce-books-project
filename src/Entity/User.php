@@ -50,6 +50,9 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $telephone = null;
 
+    #[ORM\Column(length: 255, nullable: true)]
+    private ?string $resetToken = null;
+
     /**
      * @var Collection<int, Commande>
      */
@@ -149,6 +152,18 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
+    public function getConfirmationToken(): ?string
+    {
+        return $this->confirmationToken;
+    }
+
+    public function setConfirmationToken(?string $confirmationToken): static
+    {
+        $this->confirmationToken = $confirmationToken;
+
+        return $this;
+    }
+
     public function getNom(): ?string
     {
         return $this->nom;
@@ -227,15 +242,14 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         return $this;
     }
 
-    public function getConfirmationToken(): ?string
+    public function getResetToken(): ?string
     {
-        return $this->confirmationToken;
+        return $this->resetToken;
     }
 
-    public function setConfirmationToken(?string $confirmationToken): static
+    public function setResetToken(?string $resetToken): static
     {
-        $this->confirmationToken = $confirmationToken;
-
+        $this->resetToken = $resetToken;
         return $this;
     }
 }

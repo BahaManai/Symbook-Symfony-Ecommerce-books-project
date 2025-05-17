@@ -6,15 +6,13 @@ use App\Entity\Commande;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
 use Doctrine\Persistence\ManagerRegistry;
 
-/**
- * @extends ServiceEntityRepository<Commande>
- */
 class CommandeRepository extends ServiceEntityRepository
 {
     public function __construct(ManagerRegistry $registry)
     {
         parent::__construct($registry, Commande::class);
     }
+
     public function findRecentCommandes(): array
     {
         return $this->createQueryBuilder('c')
@@ -24,28 +22,50 @@ class CommandeRepository extends ServiceEntityRepository
             ->getResult();
     }
 
-    //    /**
-    //     * @return Commande[] Returns an array of Commande objects
-    //     */
-    //    public function findByExampleField($value): array
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->orderBy('c.id', 'ASC')
-    //            ->setMaxResults(10)
-    //            ->getQuery()
-    //            ->getResult()
-    //        ;
-    //    }
+    public function getOrdersGroupedByPeriod(string $period): array
+    {
+        $groupBy = match ($period) {
+            'day' => "DATE(c.dateCommande)",
+            'week' => "CONCAT(YEAR(c.dateCommande), '-', WEEK(c.dateCommande))",
+            'month' => "CONCAT(YEAR(c.dateCommande), '-', MONTH(c.dateCommande))",
+            default => "DATE(c.dateCommande)"
+        };
 
-    //    public function findOneBySomeField($value): ?Commande
-    //    {
-    //        return $this->createQueryBuilder('c')
-    //            ->andWhere('c.exampleField = :val')
-    //            ->setParameter('val', $value)
-    //            ->getQuery()
-    //            ->getOneOrNullResult()
-    //        ;
-    //    }
+        $qb = $this->createQueryBuilder('c')
+            ->select($groupBy . ' AS label, COUNT(c.id) AS count')
+            ->where('c.etatPaiement = 1')
+            ->groupBy('label')
+            ->orderBy('label', 'ASC');
+
+        return $qb->getQuery()->getResult();
+    }
+
+    public function getOrdersOverTime(string $period = 'month'): array
+    {
+        // Validation de la période
+        if (!in_array($period, ['day', 'week', 'month'])) {
+            $period = 'month';
+        }
+
+        $format = match ($period) {
+            'day' => '%Y-%m-%d',
+            'week' => '%Y-W%v',
+            'month' => '%Y-%m',
+        };
+
+        $conn = $this->getEntityManager()->getConnection();
+
+        $sql = "
+            SELECT DATE_FORMAT(date_commande, :format) AS label, COUNT(*) AS count
+            FROM commande
+            WHERE etat_paiement = 1
+            GROUP BY label
+            ORDER BY label ASC
+        ";
+
+        $stmt = $conn->prepare($sql);
+        $result = $stmt->executeQuery(['format' => $format]);
+
+        return $result->fetchAllAssociative();
+    }
 }

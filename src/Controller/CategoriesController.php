@@ -60,4 +60,14 @@ final class CategoriesController extends AbstractController
             'f' => $form,
         ]);
     }
+
+    #[Route('/admin/categories/delete/{id}', name: 'admin_categories_delete')]
+    public function delete(EntityManagerInterface $em, Categories $categorie): Response
+    {
+        $em->remove($categorie);
+        $em->flush();
+        $this->addFlash('danger', 'Catégorie supprimée avec succès');
+        return $this->redirectToRoute('admin_categories');
+    }
+
 }
