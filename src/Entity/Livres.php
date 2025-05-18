@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\HttpFoundation\File\File;
 
 #[ORM\Entity(repositoryClass: LivresRepository::class)]
 class Livres
@@ -59,7 +60,7 @@ class Livres
     {
         $this->LigneCommandes = new ArrayCollection();
     }
-
+    private ?File $imageFile = null;
     public function getId(): ?int
     {
         return $this->id;
@@ -224,6 +225,16 @@ class Livres
             }
         }
 
+        return $this;
+    }
+    public function getImageFile(): ?File
+    {
+        return $this->imageFile;
+    }
+
+    public function setImageFile(?File $imageFile = null): self
+    {
+        $this->imageFile = $imageFile;
         return $this;
     }
 }

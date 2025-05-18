@@ -26,7 +26,7 @@
                         <td class="px-6 py-4 text-sm text-gray-600">{{ commande.user.nom }} {{ commande.user.prenom }}</td>
                         <td class="px-6 py-4 text-sm text-gray-600">{{ commande.dateCommande|date('d/m/Y') }}</td>
                         <td class="px-6 py-4 text-sm text-gray-600">{{ commande.getTotal() }} DT</td>
-                        <td class="px-6 py-4">
+                        <td class="px-6 py-4 text-sm text-gray-600">{{ commande.getModePaiement() }}<br>
                             {% if commande.etatPaiement %}
                                 <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded">Confirmé</span>
                             {% else %}

@@ -30,7 +30,7 @@
                 {% for livre in livres %}
                     <tr class="hover:bg-gray-50 transition">
                         <td class="px-6 py-4">
-                            <img src="{{ livre.image }}" alt="Image" class="w-12 h-16 object-cover rounded shadow">
+                            <img src="{{ asset('uploads/livres/' ~ livre.image) }}" alt="{{ livre.titre }}" class="w-12 h-16 object-cover rounded shadow">
                         </td>
                         <td class="px-6 py-4 font-semibold">{{ livre.titre }}</td>
                         <td class="px-7 py-4 text-sm text-gray-600">{{ livre.auteur }}</td>

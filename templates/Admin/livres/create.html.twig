@@ -10,7 +10,7 @@
                 {{ mode == 'edit' ? 'Modifier un Livre' : 'Ajouter un nouveau Livre' }}
             </h2><br>
 
-            {{ form_start(f, {'attr': {'class': 'row g-3'}}) }}
+            {{ form_start(f, {'attr': {'class': 'row g-3', 'enctype': 'multipart/form-data'}}) }}
             <div class="col-md-6">
                 {{ form_row(f.titre) }}
             </div>
@@ -21,7 +21,13 @@
                 {{ form_row(f.slug) }}
             </div>
             <div class="col-md-6">
-                {{ form_row(f.image) }}
+                {{ form_row(f.imageFile, {'label': 'Image (JPG, PNG)'}) }}
+                {% if mode == 'edit' and f.vars.data.image %}
+                    <div class="mt-2">
+                        <p>Image actuelle :</p>
+                        <img src="{{ asset('uploads/livres/' ~ f.vars.data.image) }}" alt="Image actuelle" style="max-width: 200px;">
+                    </div>
+                {% endif %}
             </div>
             <div class="col-md-12">
                 {{ form_row(f.resume, {'label': 'Résumé'}) }}

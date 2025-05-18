@@ -28,6 +28,9 @@ class CommandeController extends AbstractController
     {
         if ($commande->getEtat() === 'en cours') {
             $commande->setEtat('complétée');
+            if($commande->getModePaiement() === 'Cash'){
+                $commande->setEtatPaiement(1);
+            }
             $em->flush();
             $this->addFlash('success', 'Commande marquée comme complétée.');
         } else {

@@ -6,9 +6,10 @@ use App\Entity\Categories;
 use App\Entity\Livres;
 use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\AbstractType;
-use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\File;
 
 class LivreType extends AbstractType
 {
@@ -18,7 +19,21 @@ class LivreType extends AbstractType
             ->add('titre')
             ->add('isbn')
             ->add('slug')
-            ->add('image')
+            ->add('imageFile', FileType::class, [
+                'label' => 'Image (JPG, PNG)',
+                'mapped' => true, // Mappe à la propriété imageFile
+                'required' => false,
+                'constraints' => [
+                    new File([
+                        'maxSize' => '2m',
+                        'mimeTypes' => [
+                            'image/jpeg',
+                            'image/png',
+                        ],
+                        'mimeTypesMessage' => 'Veuillez uploader une image valide (JPG ou PNG)',
+                    ])
+                ],
+            ])
             ->add('resume')
             ->add('editeur')
             ->add('auteur')
