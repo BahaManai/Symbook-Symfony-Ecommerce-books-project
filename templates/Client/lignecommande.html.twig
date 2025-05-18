@@ -39,6 +39,7 @@
             max-width: 100%;
             height: auto;
             object-fit: contain;
+            display: block;
         }
 
         .item-details {
@@ -97,13 +98,18 @@
             min-width: 150px;
         }
 
-
         .price-original {
             color: #999;
             font-size: 0.9rem;
+            text-decoration: line-through; /* barre l'ancien prix */
+            margin-right: 8px;
         }
 
-
+        .price-promotion {
+            color: #ff0000; /* rouge par exemple pour attirer l'attention */
+            font-weight: 700;
+            font-size: 1rem;
+        }
 
         .remove-link {
             color: #0dcaf0;
@@ -181,7 +187,6 @@
     <div class="cart-container">
         <div class="cart-header">
             <h1>Votre Panier</h1>
-
         </div>
 
         {% if items is empty %}
@@ -192,8 +197,9 @@
             {% for item in items %}
                 <div class="cart-item">
                     <div class="item-image">
-                        <img src="{{ item.livre.image|default('images/placeholder.jpg') }}"
-                             alt="{{ item.livre.titre }}">
+                        <img
+                                src="{{ item.livre.image ? asset('uploads/livres/' ~ item.livre.image) : asset('images/placeholder.jpg') }}"
+                                alt="{{ item.livre.titre }}">
                     </div>
 
                     <div class="item-details">
@@ -220,17 +226,31 @@
                     </a>
 
                     <div class="item-price">
-                        <div>
-                            <span class="price-original">{{ (item.livre.prix)|number_format(2, ',', ' ') }} TND</span>
-                        </div>
+                        {% if item.livre.promotion %}
+                            {# Calcul du prix après promotion #}
+                            {% set prix_promo = item.livre.prix * (1 - item.livre.promotion) %}
+                            <span class="price-original">{{ item.livre.prix|number_format(2, ',', ' ') }} TND</span>
+                            <span class="price-promotion">{{ prix_promo|number_format(2, ',', ' ') }} TND</span>
+                        {% else %}
+                            <span>{{ item.livre.prix|number_format(2, ',', ' ') }} TND</span>
+                        {% endif %}
                     </div>
                 </div>
             {% endfor %}
-
+            {% set total_apres_promo = 0 %}
+            {% for item in items %}
+                {% if item.livre.promotion %}
+                    {% set prix_promo = item.livre.prix * (1 - item.livre.promotion) %}
+                    {% set total_apres_promo = total_apres_promo + (prix_promo * item.quantite) %}
+                {% else %}
+                    {% set total_apres_promo = total_apres_promo + (item.livre.prix * item.quantite) %}
+                {% endif %}
+            {% endfor %}
             <div class="cart-summary">
                 <div class="cart-total">
-                    Total ({{ items|length }} item{% if items|length > 1 %}s{% endif %}): {{ total|number_format(2, ',', ' ') }} TND
+                    Total ({{ items|length }} item{% if items|length > 1 %}s{% endif %}): {{ total_apres_promo|number_format(2, ',', ' ') }} TND
                 </div>
+
 
                 <a href="{{ path('client_checkout') }}" class="checkout-btn">
                     Passer la commande
