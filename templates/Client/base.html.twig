@@ -238,20 +238,6 @@
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="#">
-                                    <i class="bi bi-question-circle"></i>
-                                    <span>Support & assistance</span>
-                                    <i class="bi bi-chevron-right chevron"></i>
-                                </a>
-                            </li>
-                            <li>
-                                <a class="dropdown-item" href="#">
-                                    <i class="bi bi-gear"></i>
-                                    <span>Préférences</span>
-                                    <i class="bi bi-chevron-right chevron"></i>
-                                </a>
-                            </li>
-                            <li>
                                 <a class="dropdown-item" href="{{ path('historiqueCommande') }}">
                                     <i class="bi bi-box"></i>
                                     <span>Mes commandes</span>
@@ -259,9 +245,16 @@
                                 </a>
                             </li>
                             <li>
-                                <a class="dropdown-item" href="#">
+                                <a class="dropdown-item" href="{{ path('client_favoris_liste') }}">
                                     <i class="bi bi-heart"></i>
-                                    <span>Favoris</span>
+                                    <span> Mes Favoris</span>
+                                    <i class="bi bi-chevron-right chevron"></i>
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#">
+                                    <i class="bi bi-gear"></i>
+                                    <span>Préférences</span>
                                     <i class="bi bi-chevron-right chevron"></i>
                                 </a>
                             </li>

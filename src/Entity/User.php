@@ -62,9 +62,16 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
     public function __construct()
     {
         $this->Commandes = new ArrayCollection();
+        $this->wishlists = new ArrayCollection();
     }
     #[ORM\Column(length: 255, nullable: true)]
     private ?string $confirmationToken = null;
+
+    /**
+     * @var Collection<int, Wishlist>
+     */
+    #[ORM\OneToMany(targetEntity: Wishlist::class, mappedBy: 'user')]
+    private Collection $wishlists;
     public function getId(): ?int
     {
         return $this->id;
@@ -252,4 +259,44 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
         $this->resetToken = $resetToken;
         return $this;
     }
+
+    /**
+     * @return Collection<int, Wishlist>
+     */
+    public function getWishlists(): Collection
+    {
+        return $this->wishlists;
+    }
+
+    public function addWishlist(Wishlist $wishlist): static
+    {
+        if (!$this->wishlists->contains($wishlist)) {
+            $this->wishlists->add($wishlist);
+            $wishlist->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeWishlist(Wishlist $wishlist): static
+    {
+        if ($this->wishlists->removeElement($wishlist)) {
+            // set the owning side to null (unless already changed)
+            if ($wishlist->getUser() === $this) {
+                $wishlist->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+    public function isWishlisted(Livres $livre): bool
+    {
+        foreach ($this->wishlists as $wishlist) {
+            if ($wishlist->getLivres() === $livre) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
