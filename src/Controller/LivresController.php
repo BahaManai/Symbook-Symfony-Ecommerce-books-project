@@ -19,7 +19,7 @@ final class LivresController extends AbstractController
     public function allbooks(LivresRepository $livresRepository, PaginatorInterface $paginator, Request $request): Response
     {
         $query = $livresRepository->createQueryBuilder('l')
-            ->orderBy('l.id', 'DESC')
+            ->orderBy('l.id', 'ASC')
             ->getQuery();
         $livres = $paginator->paginate($query, $request->query->getInt('page', 1), 10);
         return $this->render('admin/livres/index.html.twig', [
