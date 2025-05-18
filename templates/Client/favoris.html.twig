@@ -2,37 +2,248 @@
 
 {% block title %}Mes Favoris{% endblock %}
 
+{% block stylesheets %}
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" integrity="sha512-..." crossorigin="anonymous" referrerpolicy="no-referrer" />
+    {{ parent() }}
+    <style>
+        /* Styles généraux */
+        .book-grid {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            gap: 1.5rem;
+        }
+
+        @media (min-width: 640px) {
+            .book-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (min-width: 768px) {
+            .book-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+        }
+
+        @media (min-width: 1024px) {
+            .book-grid {
+                grid-template-columns: repeat(4, 1fr);
+            }
+        }
+
+        /* Styles des cards */
+        .book-card {
+            height: 100%;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.5rem;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .book-card:hover {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .book-image-container {
+            position: relative;
+            aspect-ratio: 3/4;
+            overflow: hidden;
+            background-color: #f3f4f6;
+        }
+
+        .book-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        /* Badge de promotion */
+        .promotion-badge {
+            position: absolute;
+            top: 0.5rem;
+            left: 0.5rem;
+            background-color: #ef4444;
+            color: white;
+            font-weight: bold;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+            transform: rotate(-3deg);
+            z-index: 10;
+        }
+
+        /* Contenu de la card */
+        .book-content {
+            padding: 1rem;
+        }
+
+        .book-title {
+            font-weight: 600;
+            font-size: 1.125rem;
+            margin-bottom: 0.25rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .book-author {
+            color: #6b7280;
+            font-size: 0.875rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .book-price {
+            margin-bottom: 0.75rem;
+        }
+
+        .price-current {
+            font-weight: bold;
+        }
+
+        .price-original {
+            color: #6b7280;
+            font-size: 0.875rem;
+            text-decoration: line-through;
+            margin-left: 0.5rem;
+        }
+
+        .price-discounted {
+            color: #ef4444;
+            font-weight: bold;
+        }
+
+        /* Boutons d'action */
+        .card-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            flex: 1;
+        }
+
+        .btn-outline {
+            background-color: transparent;
+            border: 1px solid #d1d5db;
+            color: #374151;
+        }
+
+        .btn-outline:hover {
+            background-color: #f3f4f6;
+        }
+
+        .btn-primary {
+            background-color: #3b82f6;
+            border: 1px solid #3b82f6;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+            border: 1px solid #dc3545;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+
+        .btn-icon {
+            width: 1rem;
+            height: 1rem;
+            margin-right: 0.25rem;
+        }
+
+        @media (max-width: 768px) {
+            .btn-text {
+                display: none;
+            }
+
+            .btn-icon {
+                margin-right: 0;
+            }
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
-    <h2>Mes Livres Favoris</h2>
+    <div class="container mx-auto px-4 py-8">
+        <h2 class="mb-6 text-2xl font-bold">Mes Livres Favoris</h2>
 
-    {% if livresFavoris is empty %}
-        <p>Aucun livre ajouté aux favoris.</p>
-    {% else %}
-        <div class="row">
-            {% for livre in livresFavoris %}
-                <div class="col-md-4 mb-3">
-                    <div class="card">
-                        <img src="{{ asset('uploads/livres/' ~ livre.image) }}" class="card-img-top" alt="{{ livre.titre }}">
-                        <div class="card-body">
-                            <h5 class="card-title">{{ livre.titre }}</h5>
-                            <p class="card-text">{{ livre.auteur }}</p>
-
-                            <div class="d-flex gap-2">
-                                <a href="{{ path('client_livre_show', {'id': livre.id}) }}" class="btn btn-primary">Voir</a>
-
-                                <a href="{{ path('client_favoris_supprimer', {'id': livre.id}) }}" class="btn btn-danger">Retirer</a>
-
-                                <form action="{{ path('client_panier_ajouter', {'id': livre.id}) }}" method="post" style="margin: 0;">
-                                    <button type="submit" class="btn btn-outline-secondary">
-                                        <i class="bi bi-cart-plus"></i> Ajouter au panier
+        {% if livresFavoris is empty %}
+            <p>Aucun livre ajouté aux favoris.</p>
+        {% else %}
+            <div class="book-grid">
+                {% for livre in livresFavoris %}
+                    <div class="book-card" data-book-id="{{ livre.id }}">
+                        <div class="book-image-container">
+                            <img src="{{ asset('Uploads/livres/' ~ livre.image) }}" alt="{{ livre.titre }}" class="book-image">
+                            {% if livre.promotion %}
+                                <div class="promotion-badge">-{{ (livre.promotion * 100)|round }}%</div>
+                            {% endif %}
+                        </div>
+                        <div class="book-content">
+                            <h3 class="book-title">{{ livre.titre }}</h3>
+                            <p class="book-author">{{ livre.auteur }}</p>
+                            <div class="book-price">
+                                {% if livre.promotion %}
+                                    {% set prixReduit = livre.prix - (livre.prix * livre.promotion) %}
+                                    <span class="price-discounted">{{ prixReduit|number_format(2, '.', ',') }} TND</span>
+                                    <span class="price-original">{{ livre.prix|number_format(2, '.', ',') }} TND</span>
+                                {% else %}
+                                    <span class="price-current">{{ livre.prix|number_format(2, '.', ',') }} TND</span>
+                                {% endif %}
+                                {% if livre.stock == 0 %}
+                                    <div style="color: red; font-weight: bold; margin-top: 5px;">
+                                        🚫 Rupture de stock
+                                    </div>
+                                {% endif %}
+                            </div>
+                            <div class="card-actions">
+                                <form action="{{ path('client_panier_ajouter', {'id': livre.id}) }}" method="post">
+                                    <button type="submit" class="btn btn-outline">
+                                        <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                            <circle cx="9" cy="21" r="1"></circle>
+                                            <circle cx="20" cy="21" r="1"></circle>
+                                            <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                                            <path d="M12 9v6M9 12h6"></path>
+                                        </svg>
+                                        <span class="btn-text">Ajouter</span>
                                     </button>
                                 </form>
+                                <a href="{{ path('client_livre_show', {'id': livre.id}) }}" class="btn btn-primary">
+                                    <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                        <circle cx="12" cy="12" r="3"></circle>
+                                    </svg>
+                                    <span class="btn-text">Détails</span>
+                                </a>
+                                <a href="{{ path('client_favoris_supprimer', {'id': livre.id}) }}" class="btn btn-danger">
+                                    <svg class="btn-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                                        <line x1="10" y1="11" x2="10" y2="17"></line>
+                                        <line x1="14" y1="11" x2="14" y2="17"></line>
+                                    </svg>
+                                    <span class="btn-text"></span>
+                                </a>
                             </div>
-
                         </div>
                     </div>
-                </div>
-            {% endfor %}
-        </div>
-    {% endif %}
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
 {% endblock %}

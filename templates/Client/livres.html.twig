@@ -359,7 +359,7 @@
                     </p>
 
                     {# Formulaire de recherche #}
-                    <form class="search-form" method="get">
+                    <form class="search-form mb-8" method="get">
                         <div class="search-container">
                             <select name="filterBy" class="search-select">
                                 <option value="titre" {% if app.request.query.get('filterBy') == 'titre' %}selected{% endif %}>Titre</option>
@@ -368,10 +368,18 @@
                             </select>
                             <input type="text" name="search" placeholder="Rechercher..." class="search-input" value="{{ app.request.query.get('search') }}">
                             <button type="submit" class="search-button">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                <svg xmlns="http://www.w3.org/2000/svg"
+                                     class="search-icon"
+                                     viewBox="0 0 24 24"
+                                     fill="none"
+                                     stroke="currentColor">
+                                    <path stroke-linecap="round"
+                                          stroke-linejoin="round"
+                                          stroke-width="2.5"
+                                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                                 </svg>
                             </button>
+
                         </div>
                     </form>
 
@@ -418,22 +426,23 @@
             {% for livre in livres %}
                 <div class="book-card" data-book-id="{{ livre.id }}">
                     <div class="book-image-container">
-                        <img src="{{ asset('uploads/livres/' ~ livre.image) }}" alt="{{ livre.titre }}" class="book-image">
-
+                        <img src="{{ asset('Uploads/livres/' ~ livre.image) }}" alt="{{ livre.titre }}" class="book-image">
                         {% if livre.promotion %}
                             <div class="promotion-badge">-{{ (livre.promotion * 100)|round }}%</div>
                         {% endif %}
                         {% set isWishlisted = false %}
-                        {% for w in app.user.getWishlists %}
-                            {% if w.livres.id == livre.id %}
-                                {% set isWishlisted = true %}
-                            {% endif %}
-                        {% endfor %}
-                        <i class="wishlist-toggle fa-heart {{ isWishlisted ? 'fas text-danger' : 'far' }}"
-                           data-livre-id="{{ livre.id }}"
-                           style="position: absolute; top: 10px; right: 10px; font-size: 1.7rem; cursor: pointer;"></i>
-
-
+                        {% if app.user %}
+                            {% for w in app.user.getWishlists %}
+                                {% if w.livres.id == livre.id %}
+                                    {% set isWishlisted = true %}
+                                {% endif %}
+                            {% endfor %}
+                        {% endif %}
+                        <a href="{{ path('wishlist_toggle', {'livreId': livre.id}) }}"
+                           class="wishlist-toggle {{ isWishlisted ? 'fas fa-heart text-danger' : 'far fa-heart' }}"
+                           style="position: absolute; top: 10px; right: 10px; font-size: 1.7rem; cursor: pointer; text-decoration: none;"
+                           title="{{ isWishlisted ? 'Retirer des favoris' : 'Ajouter aux favoris' }}">
+                        </a>
                     </div>
 
                     <div class="book-content">
@@ -491,41 +500,4 @@
 
 {% block javascripts %}
     {{ parent() }}
-    <script>
-        document.querySelectorAll('.wishlist-toggle').forEach(icon => {
-            icon.addEventListener('click', async e => {
-                e.preventDefault();
-                const livreId = icon.dataset.livreId;
-
-                try {
-                    const res = await fetch(`/client/wishlist/toggle/${livreId}`);
-
-                    if (!res.ok) {
-                        const text = await res.text();
-                        throw new Error(`HTTP ${res.status}: ${text}`);
-                    }
-
-                    const data = await res.json();
-
-                    if (data.status === 'added') {
-                        icon.classList.remove('far');
-                        icon.classList.add('fas', 'text-danger');
-                    } else if (data.status === 'removed') {
-                        icon.classList.remove('fas', 'text-danger');
-                        icon.classList.add('far');
-                    } else if (data.status === 'error') {
-                        alert('Erreur : ' + data.message);
-                    }
-
-                    alert(data.message);
-                } catch (error) {
-                    alert('❌ Erreur lors de la mise à jour : ' + error.message);
-                    console.error(error);
-                }
-            });
-        });
-
-    </script>
-
-
 {% endblock %}

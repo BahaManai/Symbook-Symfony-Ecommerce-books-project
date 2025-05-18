@@ -269,17 +269,20 @@ final class ClientController extends AbstractController
             'commandes' => $commandes
         ]);
     }
+
     #[Route('/client/wishlist/toggle/{livreId}', name: 'wishlist_toggle', methods: ['GET'])]
-    public function toggle(int $livreId, LivresRepository $livresRepository, WishlistRepository $wishlistRepository, EntityManagerInterface $em): JsonResponse
+    public function toggle(int $livreId, LivresRepository $livresRepository, WishlistRepository $wishlistRepository, EntityManagerInterface $em): Response
     {
         $user = $this->getUser();
         if (!$user) {
-            return new JsonResponse(['status' => 'unauthorized', 'message' => 'Vous devez être connecté pour gérer vos favoris'], 403);
+            $this->addFlash('error', 'Vous devez être connecté pour accéder à votre panier.');
+            return $this->redirectToRoute('app_login');
         }
 
         $livre = $livresRepository->find($livreId);
         if (!$livre) {
-            return new JsonResponse(['status' => 'error', 'message' => 'Livre non trouvé'], 404);
+            $this->addFlash('error', 'Livre non trouvé');
+            return $this->redirectToRoute('client_livres');
         }
 
         try {
@@ -290,47 +293,43 @@ final class ClientController extends AbstractController
 
             if ($wishlist) {
                 $em->remove($wishlist);
-                $status = 'removed';
-                $message = 'Le livre a été retiré de vos favoris';
+                $this->addFlash('success', 'Le livre a été retiré de vos favoris');
             } else {
                 $wishlist = new Wishlist();
                 $wishlist->setUser($user);
                 $wishlist->setLivres($livre);
                 $em->persist($wishlist);
-                $status = 'added';
-                $message = 'Le livre a été ajouté à vos favoris';
+                $this->addFlash('success', 'Le livre a été ajouté à vos favoris');
             }
 
             $em->flush();
 
-            return new JsonResponse([
-                'status' => $status,
-                'message' => $message
-            ]);
+            return $this->redirectToRoute('client_livres');
         } catch (\Exception $e) {
-            return new JsonResponse([
-                'status' => 'error',
-                'message' => 'Une erreur est survenue: ' . $e->getMessage()
-            ], 500);
+            $this->addFlash('error', 'Une erreur est survenue: ' . $e->getMessage());
+            return $this->redirectToRoute('client_livres');
         }
     }
 
 
 
     #[Route('/client/favoris/supprimer/{id}', name: 'client_favoris_supprimer')]
-    public function supprimerFavori(int $id, Request $request): Response
+    public function supprimerFavori(int $id, WishlistRepository $wishlistRepository, EntityManagerInterface $em): Response
     {
-        if (!$this->getUser()) {
+        $user = $this->getUser();
+        if (!$user) {
             $this->addFlash('error', 'Vous devez être connecté pour modifier vos favoris.');
             return $this->redirectToRoute('app_login');
         }
 
-        $session = $request->getSession();
-        $favoris = $session->get('favoris', []);
+        $wishlist = $wishlistRepository->findOneBy([
+            'user' => $user,
+            'livres' => $id
+        ]);
 
-        if (($key = array_search($id, $favoris)) !== false) {
-            unset($favoris[$key]);
-            $session->set('favoris', array_values($favoris));
+        if ($wishlist) {
+            $em->remove($wishlist);
+            $em->flush();
             $this->addFlash('success', 'Le livre a été supprimé de vos favoris.');
         } else {
             $this->addFlash('info', 'Le livre n’était pas dans vos favoris.');

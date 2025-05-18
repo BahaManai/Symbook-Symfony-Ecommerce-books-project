@@ -213,13 +213,14 @@
                             <span>Livres</span>
                         </a>
                     </li>
+                    {% if app.user %}
                     <li class="nav-item">
                         <a class="nav-icon-link" href="{{ path('client_panier') }}">
                             <i class="bi bi-cart me-1"></i>
                             <span>Panier</span>
                         </a>
                     </li>
-
+                    {% endif %}
                 </ul>
             </div>
             {% if app.user %}
