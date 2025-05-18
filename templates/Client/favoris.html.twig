@@ -1,0 +1,38 @@
+{% extends 'Client/base.html.twig' %}
+
+{% block title %}Mes Favoris{% endblock %}
+
+{% block body %}
+    <h2>Mes Livres Favoris</h2>
+
+    {% if livresFavoris is empty %}
+        <p>Aucun livre ajouté aux favoris.</p>
+    {% else %}
+        <div class="row">
+            {% for livre in livresFavoris %}
+                <div class="col-md-4 mb-3">
+                    <div class="card">
+                        <img src="{{ livre.image|default('placeholder.jpg') }}" class="card-img-top" alt="{{ livre.titre }}">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ livre.titre }}</h5>
+                            <p class="card-text">{{ livre.auteur }}</p>
+
+                            <div class="d-flex gap-2">
+                                <a href="{{ path('client_livre_show', {'id': livre.id}) }}" class="btn btn-primary">Voir</a>
+
+                                <a href="{{ path('client_favoris_supprimer', {'id': livre.id}) }}" class="btn btn-danger">Retirer</a>
+
+                                <form action="{{ path('client_panier_ajouter', {'id': livre.id}) }}" method="post" style="margin: 0;">
+                                    <button type="submit" class="btn btn-outline-secondary">
+                                        <i class="bi bi-cart-plus"></i> Ajouter au panier
+                                    </button>
+                                </form>
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
+{% endblock %}

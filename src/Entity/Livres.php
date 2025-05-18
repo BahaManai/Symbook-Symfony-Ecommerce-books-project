@@ -56,9 +56,19 @@ class Livres
     #[ORM\OneToMany(targetEntity: LigneCommande::class, mappedBy: 'livre')]
     private Collection $LigneCommandes;
 
+    #[ORM\Column(nullable: true)]
+    private ?float $promotion = null;
+
+    /**
+     * @var Collection<int, Wishlist>
+     */
+    #[ORM\OneToMany(targetEntity: Wishlist::class, mappedBy: 'livres')]
+    private Collection $wishlists;
+
     public function __construct()
     {
         $this->LigneCommandes = new ArrayCollection();
+        $this->wishlists = new ArrayCollection();
     }
     private ?File $imageFile = null;
     public function getId(): ?int
@@ -235,6 +245,47 @@ class Livres
     public function setImageFile(?File $imageFile = null): self
     {
         $this->imageFile = $imageFile;
+        return $this->promotion;
+    }
+    public function getPromotion(): ?float
+    {
+        return $this->promotion;
+    }
+
+    public function setPromotion(?float $promotion): static
+    {
+        $this->promotion = $promotion;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Wishlist>
+     */
+    public function getWishlists(): Collection
+    {
+        return $this->wishlists;
+    }
+
+    public function addWishlist(Wishlist $wishlist): static
+    {
+        if (!$this->wishlists->contains($wishlist)) {
+            $this->wishlists->add($wishlist);
+            $wishlist->setLivres($this);
+        }
+
+        return $this;
+    }
+
+    public function removeWishlist(Wishlist $wishlist): static
+    {
+        if ($this->wishlists->removeElement($wishlist)) {
+            // set the owning side to null (unless already changed)
+            if ($wishlist->getLivres() === $this) {
+                $wishlist->setLivres(null);
+            }
+        }
+
         return $this;
     }
 }
