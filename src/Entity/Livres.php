@@ -245,7 +245,7 @@ class Livres
     public function setImageFile(?File $imageFile = null): self
     {
         $this->imageFile = $imageFile;
-        return $this->promotion;
+        return $this;
     }
     public function getPromotion(): ?float
     {
