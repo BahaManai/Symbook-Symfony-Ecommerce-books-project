@@ -4,9 +4,12 @@ namespace App\Controller;
 
 use App\Entity\Commande;
 use App\Entity\LigneCommande;
+use App\Entity\Wishlist;
 use App\Repository\CommandeRepository;
+use App\Repository\WishlistRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
 use App\Service\EmailService;
@@ -168,6 +171,7 @@ final class ClientController extends AbstractController
         foreach ($panier as $id => $quantite) {
             $livre = $livresRepository->find($id);
             if ($livre) {
+                $livre->setStock($livre->getStock() - $quantite);
                 $ligneCommande = new LigneCommande();
                 $ligneCommande->setLivre($livre)
                     ->setQuantite($quantite)
@@ -265,4 +269,97 @@ final class ClientController extends AbstractController
             'commandes' => $commandes
         ]);
     }
+    #[Route('/client/wishlist/toggle/{livreId}', name: 'wishlist_toggle', methods: ['GET'])]
+    public function toggle(int $livreId, LivresRepository $livresRepository, WishlistRepository $wishlistRepository, EntityManagerInterface $em): JsonResponse
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            return new JsonResponse(['status' => 'unauthorized', 'message' => 'Vous devez être connecté pour gérer vos favoris'], 403);
+        }
+
+        $livre = $livresRepository->find($livreId);
+        if (!$livre) {
+            return new JsonResponse(['status' => 'error', 'message' => 'Livre non trouvé'], 404);
+        }
+
+        try {
+            $wishlist = $wishlistRepository->findOneBy([
+                'user' => $user,
+                'livres' => $livre
+            ]);
+
+            if ($wishlist) {
+                $em->remove($wishlist);
+                $status = 'removed';
+                $message = 'Le livre a été retiré de vos favoris';
+            } else {
+                $wishlist = new Wishlist();
+                $wishlist->setUser($user);
+                $wishlist->setLivres($livre);
+                $em->persist($wishlist);
+                $status = 'added';
+                $message = 'Le livre a été ajouté à vos favoris';
+            }
+
+            $em->flush();
+
+            return new JsonResponse([
+                'status' => $status,
+                'message' => $message
+            ]);
+        } catch (\Exception $e) {
+            return new JsonResponse([
+                'status' => 'error',
+                'message' => 'Une erreur est survenue: ' . $e->getMessage()
+            ], 500);
+        }
+    }
+
+
+
+    #[Route('/client/favoris/supprimer/{id}', name: 'client_favoris_supprimer')]
+    public function supprimerFavori(int $id, Request $request): Response
+    {
+        if (!$this->getUser()) {
+            $this->addFlash('error', 'Vous devez être connecté pour modifier vos favoris.');
+            return $this->redirectToRoute('app_login');
+        }
+
+        $session = $request->getSession();
+        $favoris = $session->get('favoris', []);
+
+        if (($key = array_search($id, $favoris)) !== false) {
+            unset($favoris[$key]);
+            $session->set('favoris', array_values($favoris));
+            $this->addFlash('success', 'Le livre a été supprimé de vos favoris.');
+        } else {
+            $this->addFlash('info', 'Le livre n’était pas dans vos favoris.');
+        }
+
+        return $this->redirectToRoute('client_favoris_liste');
+    }
+    #[Route('/client/favoris', name: 'client_favoris_liste')]
+    public function afficherFavoris(WishlistRepository $wishlistRepository): Response
+    {
+        $user = $this->getUser();
+        if (!$user) {
+            $this->addFlash('error', 'Veuillez vous connecter pour accéder à vos favoris.');
+            return $this->redirectToRoute('app_login');
+        }
+
+        $wishlists = $wishlistRepository->findBy(['user' => $user]);
+
+        // Extraire les livres des wishlists
+        $livresFavoris = [];
+        foreach ($wishlists as $wishlist) {
+            $livresFavoris[] = $wishlist->getLivres();
+        }
+
+        return $this->render('client/favoris.html.twig', [
+            'livresFavoris' => $livresFavoris,
+            'wishlists' => $wishlists
+        ]);
+    }
+
+
 }
