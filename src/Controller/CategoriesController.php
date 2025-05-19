@@ -26,38 +26,37 @@ final class CategoriesController extends AbstractController
     public function create(Request $request, EntityManagerInterface $em): Response
     {
         $categorie = new Categories();
-        //afficher le formulaire
         $form = $this->createForm(CategorieType::class, $categorie);
-        // Traitement de données issues
         $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid()) {
-            //dd($categorie);
             $em->persist($categorie);
             $em->flush();
-            $this->addFlash('success', 'Une catégorie a été ajoutée avec succés');
+            $this->addFlash('success', 'Une catégorie a été ajoutée avec succès');
             return $this->redirectToRoute('admin_categories');
         }
+
         return $this->render('Admin/categories/create.html.twig', [
             'f' => $form,
+            'mode' => 'create'
         ]);
     }
 
     #[Route('/admin/categories/update/{id}', name: 'admin_categories_update')]
     public function update(Request $request, EntityManagerInterface $em, Categories $categorie): Response
     {
-        //afficher le formulaire
         $form = $this->createForm(CategorieType::class, $categorie);
-        // Traitement de données issues
         $form->handleRequest($request);
+
         if ($form->isSubmitted() && $form->isValid()) {
-            //dd($categorie);
-            //$em->persist($categorie); (optionel en mise à jour)
             $em->flush();
-            $this->addFlash('success', 'Une catégorie a été modifiée avec succés');
+            $this->addFlash('success', 'Une catégorie a été modifiée avec succès');
             return $this->redirectToRoute('admin_categories');
         }
-        return $this->render('Admin/categories/update.html.twig', [
+
+        return $this->render('Admin/categories/create.html.twig', [
             'f' => $form,
+            'mode' => 'edit'
         ]);
     }
 
@@ -69,5 +68,4 @@ final class CategoriesController extends AbstractController
         $this->addFlash('danger', 'Catégorie supprimée avec succès');
         return $this->redirectToRoute('admin_categories');
     }
-
 }
